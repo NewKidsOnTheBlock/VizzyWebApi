@@ -14,11 +14,11 @@ app.use(morgan('dev')); // log requests to the console
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port     = process.env.PORT || 8080; // set our port
+var port     = process.env.PORT || 1729; // set our port
 
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o'); // connect to our database
-var Bear     = require('./app/models/bear');
+mongoose.connect('mongodb://admin:saltywalrus@ds161580.mlab.com:61580/vizzy'); // connect to our database
+var Post     = require('./app/models/post');
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -28,88 +28,48 @@ var router = express.Router();
 
 // middleware to use for all requests
 router.use(function(req, res, next) {
-	// do logging
-	console.log('Something is happening.');
-	next();
+    // do logging
+    console.log('Something is happening.');
+    next();
 });
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+// test route to make sure everything is working (accessed at GET http://localhost:1729/api)
 router.get('/', function(req, res) {
-	res.json({ message: 'hooray! welcome to our api!' });	
+    res.json({ message: 'Welcome to the Vizzy API!' });
 });
 
-// on routes that end in /bears
+// on routes that end in /posts
 // ----------------------------------------------------
-router.route('/bears')
+router.route('/posts')
 
-	// create a bear (accessed at POST http://localhost:8080/bears)
-	.post(function(req, res) {
-		
-		var bear = new Bear();		// create a new instance of the Bear model
-		bear.name = req.body.name;  // set the bears name (comes from the request)
+    // create a post (accessed at POST http://localhost:1729/api/posts)
+    .post(function(req, res) {
 
-		bear.save(function(err) {
-			if (err)
-				res.send(err);
+        var post = new Post();		// create a new instance of the Post model
+        post.message = req.body.message;  // set the posts message
+        post.posted = Date.now();   //set the posts Date
+        post.vizzy = req.body.vizzy;
 
-			res.json({ message: 'Bear created!' });
-		});
 
-		
-	})
+        post.save(function(err) {
+            if (err)
+                res.send(err);
 
-	// get all the bears (accessed at GET http://localhost:8080/api/bears)
-	.get(function(req, res) {
-		Bear.find(function(err, bears) {
-			if (err)
-				res.send(err);
+            res.json({ message: 'Post created!' });
+        });
 
-			res.json(bears);
-		});
-	});
 
-// on routes that end in /bears/:bear_id
-// ----------------------------------------------------
-router.route('/bears/:bear_id')
+    })
 
-	// get the bear with that id
-	.get(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-			if (err)
-				res.send(err);
-			res.json(bear);
-		});
-	})
+    // get all the posts (accessed at GET http://localhost:1729/api/posts)
+    .get(function(req, res) {
+        Post.find({$query: {}, $orderby: {posted: -1}}).limit(25).exec(function(err, posts) {
+            if (err)
+                res.send(err);
 
-	// update the bear with this id
-	.put(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-
-			if (err)
-				res.send(err);
-
-			bear.name = req.body.name;
-			bear.save(function(err) {
-				if (err)
-					res.send(err);
-
-				res.json({ message: 'Bear updated!' });
-			});
-
-		});
-	})
-
-	// delete the bear with this id
-	.delete(function(req, res) {
-		Bear.remove({
-			_id: req.params.bear_id
-		}, function(err, bear) {
-			if (err)
-				res.send(err);
-
-			res.json({ message: 'Successfully deleted' });
-		});
-	});
+            res.json(posts);
+        });
+    });
 
 
 // REGISTER OUR ROUTES -------------------------------
@@ -118,4 +78,4 @@ app.use('/api', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);
-console.log('Magic happens on port ' + port);
+console.log('REST API Listening @ http://localhost:' + port+"/api");
