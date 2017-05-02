@@ -2,6 +2,14 @@
 
 The vizzy API is hosted at http://138.197.12.154:1729/api/
 
+You can download a zip with a version of vizzy packaged for your platform at the links below.
+
+- [mac](http://138.197.12.154:1729/api/mac)  
+- [linux32](http://138.197.12.154:1729/api/linux32)  
+- [linux64](http://138.197.12.154:1729/api/linux64)  
+- [windows32](http://138.197.12.154:1729/api/windows32)  
+- [windows64](http://138.197.12.154:1729/api/windows64)  
+
 ### Post API
 
 
